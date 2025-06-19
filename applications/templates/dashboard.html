@@ -1,0 +1,174 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="row">
+    <!-- Top Left -->
+    <div class="col-md-6 mb-3">
+        <div class="card card-style">
+            <div class="card-body">
+                <canvas id="income_vs_expense"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Right -->
+    <div class="col-md-6 mb-3">
+        <div class="card card-style">
+            <div class="card-body">
+                <canvas id="overtime_expenditure"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Left -->
+    <div class="col-md-6 mb-3">
+        <div class="card card-style">
+            <div class="card-body">
+                <canvas id="category_comparison"></canvas> <!-- Placeholder for now -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Right (Monthly Trend) -->
+    <div class="col-md-6 mb-3">
+        <div class="card card-style">
+            <div class="card-body">
+                <canvas id="monthly_income_vs_expense"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %} 
+
+{% block javascript%}
+<script>
+    const income_vs_expenses = {{ income_vs_expenses | tojson }};
+    const ctx = document.getElementById('income_vs_expense');
+
+    new Chart(ctx,{
+        type: 'pie',
+        data: {
+            labels: ['Expense', 'Income'],
+            datasets: [{
+                label: "Income Vs Expenses",
+                data: income_vs_expenses ,
+                backgroundColor: ['#5DA5DA', '#FAA43A'],
+                borderWidth: 1,
+                hoverOffset: 10
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: "Income Vs Expenses",
+                    font: {
+                        size: 20
+                    }
+                },
+                legend: {
+                    position: "right",
+                    labels: {
+                        color: "gray"
+                    }
+                }
+            }
+        }
+    });
+    const overtime_expenditure = {{ over_time_expenditure | tojson }};
+    const dates_label = {{ dates_label | tojson }};
+    const lineCtx = document.getElementById('overtime_expenditure');
+
+    new Chart(lineCtx, {
+        type: "line",
+        data: {
+            labels: dates_label,  // ✅ fix variable name
+            datasets: [{
+                label: "Expenditure Over Time",
+                data: overtime_expenditure,
+                fill: false,
+                borderColor: "rgb(75, 192, 192)",
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: "Expenditure Over Time",
+                    font: {
+                        size: 20
+                    }
+                }
+            }
+        }
+    });
+
+    const category_labels = {{ category_labels | tojson }};
+    const category_amounts = {{ category_amounts | tojson }};
+    const categoryCtx = document.getElementById('category_comparison');
+    new Chart(categoryCtx, {
+        type: 'bar',
+        data: {
+            labels: category_labels,
+            datasets: [{
+                label: "Amount by Category",
+                data: category_amounts,
+                backgroundColor: '#7FB3D5',
+                borderColor: '#2980B9',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: "Category Comparison",
+                    font: {
+                        size: 18
+                    }
+                },
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+    
+    const months = {{ months | tojson }};
+    const incomeData = {{ income_data | tojson }};
+    const expenseData = {{ expense_data | tojson }};
+    new Chart(document.getElementById('monthly_income_vs_expense'), {
+        type: 'bar',
+        data: {
+            labels: months,
+            datasets: [
+                {
+                    label: 'Income',
+                    data: incomeData,
+                    backgroundColor: '#36A2EB'
+                },
+                
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Monthly Income vs Expense'
+                }
+            }
+        }
+    });
+
+</script>
+{% endblock %}
